@@ -1,6 +1,8 @@
 import React, { Component } from "react"
 import cloneDeep from "lodash/cloneDeep"
 import each from "lodash/each"
+import union from "lodash/union"
+import intersection from "lodash/intersection"
 
 export const CategoryManagerContext = React.createContext()
 
@@ -57,22 +59,37 @@ class CategoryManager extends Component {
     // Get active Filters
     let activeFilters = filters.reduce((result, filter) => {
       if (filter.active) {
-        result.push(filter)
+        let skus = filter.products
+        result[filter.optionType] = result[filter.optionType] || {}
+        result[filter.optionType].products = union(
+          result[filter.optionType].products,
+          skus
+        )
       }
       return result
-    }, [])
+    }, Object.create(null))
     console.log("activeFilters", activeFilters)
 
-    // Get active products
-    let activeProducts = filters.reduce((result, filter) => {
-      if (filter.active) {
-        let skus = filter.products.filter(product => !result.includes(product))
-        console.log("skus", skus)
-        return [...result, ...skus]
-      }
-      return result
+    let combineArrays = Object.keys(activeFilters).reduce((result, key) => {
+      let filter = activeFilters[key]
+      console.log("comb", filter)
+
+      return [...result, filter.products]
     }, [])
+
+    console.log("combineArrays", combineArrays)
+    let activeProducts = intersection(...combineArrays)
     console.log("activeProducts", activeProducts)
+
+    // // Get active products
+    // let activeProducts = filters.reduce((result, filter) => {
+    //   if (filter.active) {
+    //     let skus = filter.products.filter(product => !result.includes(product))
+    //     console.log("skus", skus)
+    //     return [...result, ...skus]
+    //   }
+    //   return result
+    // }, [])
 
     let products = inputProducts.filter(product => {
       return activeProducts.includes(product.sku)
