@@ -65,3 +65,20 @@ export const transformActiveProducts = activeFilters => {
     return [...result, filter.products]
   }, [])
 }
+
+export const combineFiltersByOptionType = filters => {
+  return filters.reduce((combined, filterItem) => {
+    let obj = {
+      id: filterItem.id,
+      active: filterItem.active,
+      count: filterItem.count,
+      optionValue: filterItem.optionValue,
+    }
+    combined[filterItem.optionType] = combined[filterItem.optionType] || {}
+    combined[filterItem.optionType].options =
+      combined[filterItem.optionType].options || []
+    combined[filterItem.optionType].options.push(obj)
+    combined[filterItem.optionType].name = filterItem.name
+    return combined
+  }, Object.create(null))
+}

@@ -64,8 +64,8 @@ class CategoryManager extends Component {
     })
     console.log("products", products)
 
-    filters = setProductsCount(filters, products)
-    console.log("filters out", filters)
+    // filters = setProductsCount(filters, products)
+    // console.log("filters out", filters)
 
     this.setState({ products, filters })
   }

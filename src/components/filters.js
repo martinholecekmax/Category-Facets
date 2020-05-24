@@ -1,24 +1,12 @@
-import React from "react"
-import { CategoryManagerContext } from "../components/categoryManager"
+import React, { useContext } from "react"
+import { CategoryManagerContext } from "./categoryManager"
+import { combineFiltersByOptionType } from "../utils/filterHelpers"
 
 const Filters = () => {
   const { filters, toggleFilter, resetActiveFilters } = useContext(
     CategoryManagerContext
   )
-  const combineFilters = filters.reduce((combined, filterItem) => {
-    let obj = {
-      id: filterItem.id,
-      active: filterItem.active,
-      count: filterItem.count,
-      optionValue: filterItem.optionValue,
-    }
-    combined[filterItem.optionType] = combined[filterItem.optionType] || {}
-    combined[filterItem.optionType].options =
-      combined[filterItem.optionType].options || []
-    combined[filterItem.optionType].options.push(obj)
-    combined[filterItem.optionType].name = filterItem.name
-    return combined
-  }, Object.create(null))
+  const combineFilters = combineFiltersByOptionType(filters)
 
   const filtersList =
     Object.keys(combineFilters).map((optionKey, index) => {
@@ -34,8 +22,7 @@ const Filters = () => {
             <span style={{ cursor: `pointer` }}>
               {option.active ? "[x] " : "[ ] "}
             </span>
-            <span>{option.optionValue}</span>
-            <span>[{option.count}]</span>
+            <span>{`${option.optionValue}   (${option.count})`}</span>
           </div>
         )
       })

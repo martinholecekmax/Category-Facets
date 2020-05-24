@@ -1,9 +1,9 @@
-import React, { Component, useContext } from "react"
-import initialProducts from "../json/products"
-import initialFilters from "../json/filters"
+import React, { Component } from "react"
+import { products as initialProducts } from "../json/products"
+import { filters as initialFilters } from "../json/filters"
 
-import Filters from "./filters"
-import Products from "./products"
+import Filters from "../components/filters"
+import Products from "../components/products"
 
 import CategoryManager from "../components/categoryManager"
 
@@ -16,7 +16,8 @@ class Index extends Component {
             display: `flex`,
             margin: `50px auto`,
             justifyContent: `space-between`,
-            width: `500px`,
+            width: `700px`,
+            fontSize: `18px`,
           }}
         >
           <Filters />
