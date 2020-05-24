@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid"
 
-export const filters = [
+export default filters = [
   {
     id: uuidv4(),
     name: "Width",
@@ -8,14 +8,16 @@ export const filters = [
     optionValue: "140mm",
     active: false,
     count: 0,
+    products: [],
   },
   {
     id: uuidv4(),
     name: "Width",
     optionType: "width",
     optionValue: "150mm",
-    active: true,
+    active: false,
     count: 0,
+    products: [],
   },
   {
     id: uuidv4(),
@@ -24,46 +26,25 @@ export const filters = [
     optionValue: "125mm",
     active: false,
     count: 0,
-  },
-  {
-    id: uuidv4(),
-    name: "Height",
-    optionType: "height",
-    optionValue: "1400mm",
-    active: false,
-    count: 0,
-  },
-  {
-    id: uuidv4(),
-    name: "Height",
-    optionType: "height",
-    optionValue: "1500mm",
-    active: false,
-    count: 0,
-  },
-  {
-    id: uuidv4(),
-    name: "Height",
-    optionType: "height",
-    optionValue: "1250mm",
-    active: false,
-    count: 0,
+    products: [],
   },
   {
     id: uuidv4(),
     name: "Color",
     optionType: "color",
     optionValue: "Red",
-    active: true,
+    active: false,
     count: 0,
+    products: [],
   },
   {
     id: uuidv4(),
     name: "Color",
     optionType: "color",
     optionValue: "Green",
-    active: true,
+    active: false,
     count: 0,
+    products: [],
   },
   {
     id: uuidv4(),
@@ -72,6 +53,7 @@ export const filters = [
     optionValue: "Blue",
     active: false,
     count: 0,
+    products: [],
   },
 ]
 // export const filters = [

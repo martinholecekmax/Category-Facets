@@ -1,21 +1,10 @@
-import React, { Component, useContext } from "react"
-import { products } from "../json/products"
-import { filters } from "../json/filters"
-import CategoryManager, {
-  CategoryManagerContext,
-} from "../components/categoryManager"
-
-const Products = () => {
-  const { products } = useContext(CategoryManagerContext)
-  return (
-    products.map((product, index) => {
-      return <div key={index}>{product.title}</div>
-    }) || null
-  )
-}
+import React from "react"
+import { CategoryManagerContext } from "../components/categoryManager"
 
 const Filters = () => {
-  const { filters, toggleFilter } = useContext(CategoryManagerContext)
+  const { filters, toggleFilter, resetActiveFilters } = useContext(
+    CategoryManagerContext
+  )
   const combineFilters = filters.reduce((combined, filterItem) => {
     let obj = {
       id: filterItem.id,
@@ -31,39 +20,42 @@ const Filters = () => {
     return combined
   }, Object.create(null))
 
-  return (
+  const filtersList =
     Object.keys(combineFilters).map((optionKey, index) => {
       let filter = combineFilters[optionKey]
       let options = filter.options.map((option, index) => {
         return (
-          <div key={index} onClick={() => toggleFilter(option.id)}>
-            <span>{option.active ? "[x] " : "[ ] "}</span>
+          <div
+            key={index}
+            onClick={() => toggleFilter(option.id)}
+            role="presentation"
+            onKeyDown={() => {}}
+          >
+            <span style={{ cursor: `pointer` }}>
+              {option.active ? "[x] " : "[ ] "}
+            </span>
             <span>{option.optionValue}</span>
             <span>[{option.count}]</span>
           </div>
         )
       })
       return (
-        <div key={index}>
-          <div>{optionKey}</div>
+        <div key={index} style={{ marginBottom: `20px` }}>
+          <div style={{ marginBottom: `5px` }}>{optionKey.toUpperCase()}</div>
           {options}
         </div>
       )
     }) || null
+  return (
+    <div>
+      <div>
+        <button onClick={resetActiveFilters} style={{ marginBottom: `20px` }}>
+          Clear Filters
+        </button>
+      </div>
+      <div>{filtersList}</div>
+    </div>
   )
 }
 
-class Category extends Component {
-  render() {
-    return (
-      <CategoryManager products={products} filters={filters}>
-        <div>
-          <Products />
-          <Filters />
-        </div>
-      </CategoryManager>
-    )
-  }
-}
-
-export default Category
+export default Filters

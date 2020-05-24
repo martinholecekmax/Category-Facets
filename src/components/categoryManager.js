@@ -1,8 +1,12 @@
 import React, { Component } from "react"
 import cloneDeep from "lodash/cloneDeep"
-import each from "lodash/each"
-import union from "lodash/union"
 import intersection from "lodash/intersection"
+import {
+  getActiveFilters,
+  transformActiveProducts,
+  setProductsSKU,
+  setProductsCount,
+} from "../utils/filterHelpers"
 
 export const CategoryManagerContext = React.createContext()
 
@@ -12,6 +16,12 @@ class CategoryManager extends Component {
   static defaultProps = {
     initialProducts: [],
     initialFilters: [],
+  }
+
+  resetActiveFilters = () => {
+    let filters = cloneDeep(this.state.initialFilters)
+    let products = cloneDeep(this.state.initialProducts)
+    this.setFilters(filters, products)
   }
 
   toggleFilter = id => {
@@ -28,73 +38,35 @@ class CategoryManager extends Component {
     products: [],
     filters: [],
     toggleFilter: this.toggleFilter,
+    resetActiveFilters: this.resetActiveFilters,
   }
 
   state = this.initialState
 
   setFilters = (inputFilters, inputProducts) => {
-    let filters = cloneDeep(inputFilters)
+    let filters = setProductsSKU(inputFilters, inputProducts)
+    console.log("filters input", filters)
 
-    // Set product count
-    each(filters, filter => {
-      let filteredProducts = inputProducts.filter(product => {
-        let keys = Object.keys(product)
-        if (keys.includes(filter.optionType)) {
-          let isValue = false
-          each(product[filter.optionType], option => {
-            if (filter.optionValue === option.value) {
-              isValue = true
-            }
-          })
-          return isValue
-        }
-      })
-      filter.count = filteredProducts.length
-      filter.products = filteredProducts.reduce((acc, product) => {
-        return acc.concat([product.sku])
-      }, [])
-    })
-    console.log("filters", filters)
+    filters = setProductsCount(filters, inputProducts)
+    console.log("filters input", filters)
 
-    // Get active Filters
-    let activeFilters = filters.reduce((result, filter) => {
-      if (filter.active) {
-        let skus = filter.products
-        result[filter.optionType] = result[filter.optionType] || {}
-        result[filter.optionType].products = union(
-          result[filter.optionType].products,
-          skus
-        )
-      }
-      return result
-    }, Object.create(null))
+    let activeFilters = getActiveFilters(filters)
     console.log("activeFilters", activeFilters)
 
-    let combineArrays = Object.keys(activeFilters).reduce((result, key) => {
-      let filter = activeFilters[key]
-      console.log("comb", filter)
+    let transformedProducts = transformActiveProducts(activeFilters)
+    console.log("combineArrays", transformedProducts)
 
-      return [...result, filter.products]
-    }, [])
-
-    console.log("combineArrays", combineArrays)
-    let activeProducts = intersection(...combineArrays)
+    let activeProducts = intersection(...transformedProducts)
     console.log("activeProducts", activeProducts)
-
-    // // Get active products
-    // let activeProducts = filters.reduce((result, filter) => {
-    //   if (filter.active) {
-    //     let skus = filter.products.filter(product => !result.includes(product))
-    //     console.log("skus", skus)
-    //     return [...result, ...skus]
-    //   }
-    //   return result
-    // }, [])
 
     let products = inputProducts.filter(product => {
       return activeProducts.includes(product.sku)
     })
     console.log("products", products)
+
+    filters = setProductsCount(filters, products)
+    console.log("filters out", filters)
+
     this.setState({ products, filters })
   }
 
