@@ -1,4 +1,5 @@
 import union from "lodash/union"
+import differenceWith from "lodash/differenceWith"
 
 export const setProductsCount = (inputFilters, inputProducts) => {
   return updateFilters(inputFilters, inputProducts, "count", getProductsCount)
@@ -81,4 +82,12 @@ export const combineFiltersByOptionType = filters => {
     combined[filterItem.optionType].name = filterItem.name
     return combined
   }, Object.create(null))
+}
+
+export const productsDifference = (productsA, productsB) => {
+  return differenceWith(productsA, productsB, customComparator)
+}
+
+function customComparator(a, b) {
+  return a.sku === b.sku
 }

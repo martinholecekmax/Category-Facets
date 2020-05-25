@@ -16,7 +16,7 @@ class Index extends Component {
             display: `flex`,
             margin: `50px auto`,
             justifyContent: `space-between`,
-            width: `700px`,
+            width: `600px`,
             fontSize: `18px`,
           }}
         >

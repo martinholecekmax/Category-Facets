@@ -6,6 +6,7 @@ import {
   transformActiveProducts,
   setProductsSKU,
   setProductsCount,
+  productsDifference,
 } from "../utils/filterHelpers"
 
 export const CategoryManagerContext = React.createContext()
@@ -63,9 +64,13 @@ class CategoryManager extends Component {
       return activeProducts.includes(product.sku)
     })
     console.log("products", products)
+    console.log("inputProducts", inputProducts)
 
-    // filters = setProductsCount(filters, products)
-    // console.log("filters out", filters)
+    let difference = productsDifference(inputProducts, products)
+    console.log("difference", difference)
+
+    filters = setProductsCount(filters, difference)
+    console.log("filters out", filters)
 
     this.setState({ products, filters })
   }
