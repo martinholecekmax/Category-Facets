@@ -1,7 +1,5 @@
 import React, { Component } from "react"
 import cloneDeep from "lodash/cloneDeep"
-import union from "lodash/unionBy"
-import sortBy from "lodash/sortBy"
 import intersection from "lodash/intersection"
 import {
   getActiveFilters,
@@ -9,6 +7,7 @@ import {
   setProductsSKU,
   setProductsCount,
   productsDifference,
+  setProductsCountInactive,
 } from "../utils/filterHelpers"
 
 export const CategoryManagerContext = React.createContext()
@@ -48,37 +47,25 @@ class CategoryManager extends Component {
 
   setFilters = (inputFilters, inputProducts) => {
     let filters = setProductsSKU(inputFilters, inputProducts)
-    console.log("filters input", filters)
-
-    // filters = setProductsCount(filters, inputProducts)
-    // console.log("filters input", filters)
-
+    console.log("skus filters", filters)
+    filters = setProductsCount(filters, inputProducts)
+    console.log("filters", filters)
     let activeFilters = getActiveFilters(filters)
     console.log("activeFilters", activeFilters)
-
     let transformedProducts = transformActiveProducts(activeFilters)
-    console.log("combineArrays", transformedProducts)
-
+    console.log("transformedProducts", transformedProducts)
     let activeProducts = intersection(...transformedProducts)
     console.log("activeProducts", activeProducts)
-
     let products = inputProducts.filter(product => {
       return activeProducts.includes(product.sku)
     })
     console.log("products", products)
-    console.log("inputProducts", inputProducts)
 
     let difference = productsDifference(inputProducts, products)
     console.log("difference", difference)
 
-    let act = filters.filter(filter => filter.active === true)
-    let inact = filters.filter(filter => filter.active === false)
-    let actfilters = setProductsCount(inact, difference)
-    let inactfilters = setProductsCount(act, products)
-    filters = union(actfilters, inactfilters, "id")
-    filters = sortBy(filters, ["optionType", "id"])
-    console.log("filters out", filters)
-
+    filters = setProductsCount(filters, difference)
+    filters = setProductsCountInactive(filters, inputProducts)
     this.setState({ products, filters })
   }
 

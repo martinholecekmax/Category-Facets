@@ -1,5 +1,6 @@
 import union from "lodash/union"
 import differenceWith from "lodash/differenceWith"
+import intersection from "lodash/intersection"
 
 export const setProductsCount = (inputFilters, inputProducts) => {
   return updateFilters(inputFilters, inputProducts, "count", getProductsCount)
@@ -85,9 +86,34 @@ export const combineFiltersByOptionType = filters => {
 }
 
 export const productsDifference = (productsA, productsB) => {
-  return differenceWith(productsA, productsB, customComparator)
+  return differenceWith(productsA, productsB, skuComparator)
 }
 
-function customComparator(a, b) {
+const skuComparator = (a, b) => {
   return a.sku === b.sku
+}
+
+export const setFiltersCount = (inputFilters, inputProducts) => {
+  let filters = setProductsSKU(inputFilters, inputProducts)
+  filters = setProductsCount(filters, inputProducts)
+  let activeFilters = getActiveFilters(filters)
+  let transformedProducts = transformActiveProducts(activeFilters)
+  let activeProducts = intersection(...transformedProducts)
+  let products = inputProducts.filter(product => {
+    return activeProducts.includes(product.sku)
+  })
+  return products.length
+}
+
+export const setProductsCountInactive = (inputFilters, inputProducts) => {
+  return inputFilters.reduce((filters, filter) => {
+    let active = filter.active
+    if (active) {
+      return [...filters, filter]
+    }
+    filter.active = true
+    filter.count = setFiltersCount(inputFilters, inputProducts)
+    filter.active = false
+    return [...filters, filter]
+  }, [])
 }
