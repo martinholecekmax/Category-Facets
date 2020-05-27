@@ -1,5 +1,7 @@
 import React, { Component } from "react"
 import cloneDeep from "lodash/cloneDeep"
+import union from "lodash/unionBy"
+import sortBy from "lodash/sortBy"
 import intersection from "lodash/intersection"
 import {
   getActiveFilters,
@@ -48,8 +50,8 @@ class CategoryManager extends Component {
     let filters = setProductsSKU(inputFilters, inputProducts)
     console.log("filters input", filters)
 
-    filters = setProductsCount(filters, inputProducts)
-    console.log("filters input", filters)
+    // filters = setProductsCount(filters, inputProducts)
+    // console.log("filters input", filters)
 
     let activeFilters = getActiveFilters(filters)
     console.log("activeFilters", activeFilters)
@@ -69,7 +71,12 @@ class CategoryManager extends Component {
     let difference = productsDifference(inputProducts, products)
     console.log("difference", difference)
 
-    filters = setProductsCount(filters, difference)
+    let act = filters.filter(filter => filter.active === true)
+    let inact = filters.filter(filter => filter.active === false)
+    let actfilters = setProductsCount(inact, difference)
+    let inactfilters = setProductsCount(act, products)
+    filters = union(actfilters, inactfilters, "id")
+    filters = sortBy(filters, ["optionType", "id"])
     console.log("filters out", filters)
 
     this.setState({ products, filters })

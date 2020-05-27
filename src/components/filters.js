@@ -7,6 +7,7 @@ const Filters = () => {
     CategoryManagerContext
   )
   const combineFilters = combineFiltersByOptionType(filters)
+  console.log("combineFilters", combineFilters)
 
   const filtersList =
     Object.keys(combineFilters).map((optionKey, index) => {
