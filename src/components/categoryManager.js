@@ -1,14 +1,6 @@
 import React, { Component } from "react"
 import cloneDeep from "lodash/cloneDeep"
-import intersection from "lodash/intersection"
-import {
-  getActiveFilters,
-  transformActiveProducts,
-  setProductsSKU,
-  setProductsCount,
-  productsDifference,
-  setProductsCountInactive,
-} from "../utils/filterHelpers"
+import { getFilters, getActiveProducts } from "../utils/filterHelpers"
 
 export const CategoryManagerContext = React.createContext()
 
@@ -46,17 +38,8 @@ class CategoryManager extends Component {
   state = this.initialState
 
   setFilters = (inputFilters, inputProducts) => {
-    let filters = setProductsSKU(inputFilters, inputProducts)
-    // filters = setProductsCount(filters, inputProducts)
-    let activeFilters = getActiveFilters(filters)
-    let transformedProducts = transformActiveProducts(activeFilters)
-    let activeProducts = intersection(...transformedProducts)
-    let products = inputProducts.filter(product => {
-      return activeProducts.includes(product.sku)
-    })
-    let difference = productsDifference(inputProducts, products)
-    filters = setProductsCount(filters, difference)
-    filters = setProductsCountInactive(filters, inputProducts)
+    let products = getActiveProducts(inputFilters, inputProducts)
+    let filters = getFilters(inputFilters, inputProducts)
     this.setState({ products, filters })
   }
 

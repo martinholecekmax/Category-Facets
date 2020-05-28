@@ -1,34 +1,46 @@
 import union from "lodash/union"
-import differenceWith from "lodash/differenceWith"
+// import differenceWith from "lodash/differenceWith"
 import intersection from "lodash/intersection"
 
-export const setProductsCount = (inputFilters, inputProducts) => {
-  return updateFilters(inputFilters, inputProducts, "count", getProductsCount)
-}
+// const setProductsCount = (inputFilters, inputProducts) => {
+//   return updateFilters(inputFilters, inputProducts, "count", getProductsCount)
+// }
 
-export const setProductsSKU = (inputFilters, inputProducts) => {
-  return updateFilters(inputFilters, inputProducts, "products", getProductsSKU)
-}
-
-export const updateFilters = (inputFilters, inputProducts, property, cb) => {
+const setProductsSKU = (inputFilters, inputProducts) => {
   return inputFilters.reduce((filters, filter) => {
-    let value = cb(inputProducts, filter)
+    let skus = getProductsSKU(inputProducts, filter)
     return filters.concat([
       {
         ...filter,
-        [property]: value,
+        products: skus,
       },
     ])
   }, [])
 }
 
-export const getProductsCount = (inputProducts, filter) => {
-  return inputProducts.reduce((total, product) => {
-    return isFilterValueInProduct(product, filter) ? total + 1 : total
-  }, 0)
-}
+// const setProductsSKU = (inputFilters, inputProducts) => {
+//   return updateFilters(inputFilters, inputProducts, "products", getProductsSKU)
+// }
 
-export const getProductsSKU = (inputProducts, filter) => {
+// const updateFilters = (inputFilters, inputProducts, property, cb) => {
+//   return inputFilters.reduce((filters, filter) => {
+//     let value = cb(inputProducts, filter)
+//     return filters.concat([
+//       {
+//         ...filter,
+//         [property]: value,
+//       },
+//     ])
+//   }, [])
+// }
+
+// const getProductsCount = (inputProducts, filter) => {
+//   return inputProducts.reduce((total, product) => {
+//     return isFilterValueInProduct(product, filter) ? total + 1 : total
+//   }, 0)
+// }
+
+const getProductsSKU = (inputProducts, filter) => {
   return inputProducts.reduce((skus, product) => {
     if (isFilterValueInProduct(product, filter)) {
       return skus.concat([product.sku])
@@ -37,7 +49,7 @@ export const getProductsSKU = (inputProducts, filter) => {
   }, [])
 }
 
-export const isFilterValueInProduct = (product, filter) => {
+const isFilterValueInProduct = (product, filter) => {
   const keys = Object.keys(product)
   if (keys.includes(filter.optionType)) {
     return product[filter.optionType].some(option => {
@@ -47,7 +59,7 @@ export const isFilterValueInProduct = (product, filter) => {
   return false
 }
 
-export const getActiveFilters = filters => {
+const getActiveFilters = filters => {
   return filters.reduce((result, filter) => {
     if (filter.active) {
       let skus = filter.products
@@ -61,7 +73,7 @@ export const getActiveFilters = filters => {
   }, Object.create(null))
 }
 
-export const transformActiveProducts = activeFilters => {
+const transformActiveProducts = activeFilters => {
   return Object.keys(activeFilters).reduce((result, key) => {
     let filter = activeFilters[key]
     return [...result, filter.products]
@@ -85,34 +97,42 @@ export const combineFiltersByOptionType = filters => {
   }, Object.create(null))
 }
 
-export const productsDifference = (productsA, productsB) => {
-  return differenceWith(productsA, productsB, skuComparator)
-}
+// const productsDifference = (productsA, productsB) => {
+//   return differenceWith(productsA, productsB, skuComparator)
+// }
 
-const skuComparator = (a, b) => {
-  return a.sku === b.sku
-}
+// const skuComparator = (a, b) => {
+//   return a.sku === b.sku
+// }
 
-export const setFiltersCount = (inputFilters, inputProducts) => {
+export const getActiveProducts = (inputFilters, inputProducts) => {
   let filters = setProductsSKU(inputFilters, inputProducts)
-  // filters = setProductsCount(filters, inputProducts)
   let activeFilters = getActiveFilters(filters)
   let transformedProducts = transformActiveProducts(activeFilters)
   let activeProducts = intersection(...transformedProducts)
   let products = inputProducts.filter(product => {
     return activeProducts.includes(product.sku)
   })
-  return products.length
+  return products
 }
 
-export const setProductsCountInactive = (inputFilters, inputProducts) => {
+const getActiveProductsCount = (inputFilters, inputProducts) => {
+  let filters = setProductsSKU(inputFilters, inputProducts)
+  let activeFilters = getActiveFilters(filters)
+  let transformedProducts = transformActiveProducts(activeFilters)
+  let activeProducts = intersection(...transformedProducts)
+  return activeProducts.length
+}
+
+export const getFilters = (inputFilters, inputProducts) => {
   return inputFilters.reduce((filters, filter) => {
     let active = filter.active
     if (active) {
+      filter.count = getActiveProductsCount(inputFilters, inputProducts)
       return [...filters, filter]
     }
     filter.active = true
-    filter.count = setFiltersCount(inputFilters, inputProducts)
+    filter.count = getActiveProductsCount(inputFilters, inputProducts)
     filter.active = false
     return [...filters, filter]
   }, [])
