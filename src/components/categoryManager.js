@@ -47,23 +47,14 @@ class CategoryManager extends Component {
 
   setFilters = (inputFilters, inputProducts) => {
     let filters = setProductsSKU(inputFilters, inputProducts)
-    console.log("skus filters", filters)
-    filters = setProductsCount(filters, inputProducts)
-    console.log("filters", filters)
+    // filters = setProductsCount(filters, inputProducts)
     let activeFilters = getActiveFilters(filters)
-    console.log("activeFilters", activeFilters)
     let transformedProducts = transformActiveProducts(activeFilters)
-    console.log("transformedProducts", transformedProducts)
     let activeProducts = intersection(...transformedProducts)
-    console.log("activeProducts", activeProducts)
     let products = inputProducts.filter(product => {
       return activeProducts.includes(product.sku)
     })
-    console.log("products", products)
-
     let difference = productsDifference(inputProducts, products)
-    console.log("difference", difference)
-
     filters = setProductsCount(filters, difference)
     filters = setProductsCountInactive(filters, inputProducts)
     this.setState({ products, filters })

@@ -95,7 +95,7 @@ const skuComparator = (a, b) => {
 
 export const setFiltersCount = (inputFilters, inputProducts) => {
   let filters = setProductsSKU(inputFilters, inputProducts)
-  filters = setProductsCount(filters, inputProducts)
+  // filters = setProductsCount(filters, inputProducts)
   let activeFilters = getActiveFilters(filters)
   let transformedProducts = transformActiveProducts(activeFilters)
   let activeProducts = intersection(...transformedProducts)
