@@ -3,12 +3,8 @@ import { CategoryManagerContext } from "./categoryManager"
 import { combineFiltersByOptionType } from "../utils/filterHelpers"
 
 const Filters = () => {
-  const { filters, toggleFilter, resetActiveFilters } = useContext(
-    CategoryManagerContext
-  )
+  const { filters, toggleFilter } = useContext(CategoryManagerContext)
   const combineFilters = combineFiltersByOptionType(filters)
-  console.log("combineFilters", combineFilters)
-
   const filtersList =
     Object.keys(combineFilters).map((optionKey, index) => {
       let filter = combineFilters[optionKey]
@@ -36,11 +32,6 @@ const Filters = () => {
     }) || null
   return (
     <div>
-      <div>
-        <button onClick={resetActiveFilters} style={{ marginBottom: `20px` }}>
-          Clear Filters
-        </button>
-      </div>
       <div>{filtersList}</div>
     </div>
   )

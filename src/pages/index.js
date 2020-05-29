@@ -6,6 +6,10 @@ import Filters from "../components/filters"
 import Products from "../components/products"
 
 import CategoryManager from "../components/categoryManager"
+import PriceRange from "../components/priceRange"
+import ClearFiltersButton from "../components/clearFiltersButton"
+import SortSwitch from "../components/sortSwitch"
+import ToggleOffersButton from "../components/toggleOffersButton"
 
 class Index extends Component {
   render() {
@@ -16,12 +20,20 @@ class Index extends Component {
             display: `flex`,
             margin: `50px auto`,
             justifyContent: `space-between`,
-            width: `600px`,
+            width: `900px`,
             fontSize: `18px`,
           }}
         >
-          <Filters />
-          <Products />
+          <div style={{ minWidth: `150px` }}>
+            <ClearFiltersButton />
+            <ToggleOffersButton />
+            <PriceRange />
+            <Filters />
+          </div>
+          <div>
+            <SortSwitch />
+            <Products />
+          </div>
         </div>
       </CategoryManager>
     )

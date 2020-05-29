@@ -1,10 +1,53 @@
 import union from "lodash/union"
 import intersection from "lodash/intersection"
+import cloneDeep from "lodash/cloneDeep"
+
+/**
+ * Combine individual filters by the optionType as a key
+ * Used for render
+ *
+ * @param {Array} filters Array of filter objects
+ */
+export const combineFiltersByOptionType = filters => {
+  return filters.reduce((combined, filterItem) => {
+    let obj = {
+      id: filterItem.id,
+      active: filterItem.active,
+      count: filterItem.count,
+      optionValue: filterItem.optionValue,
+    }
+    combined[filterItem.optionType] = combined[filterItem.optionType] || {}
+    combined[filterItem.optionType].options =
+      combined[filterItem.optionType].options || []
+    combined[filterItem.optionType].options.push(obj)
+    combined[filterItem.optionType].name = filterItem.name
+    return combined
+  }, Object.create(null))
+}
+
+export const getFilteredProducts = (inputFilters, inputProducts) => {
+  let products = []
+  let filters = []
+  if (isAnyActive(inputFilters)) {
+    products = getActiveProducts(inputFilters, inputProducts)
+  } else {
+    products = cloneDeep(inputProducts)
+  }
+  filters = getFilters(inputFilters, inputProducts)
+  return { products, filters }
+}
+
+export const getProductsByOffer = (inputProducts, showOffers) => {
+  if (!showOffers) return inputProducts
+  let productsByOffer = inputProducts.filter(product => {
+    return product.offer
+  })
+  return productsByOffer.length > 0 ? productsByOffer : inputProducts
+}
 
 const setProductsSKU = (inputFilters, inputProducts) => {
   return inputFilters.reduce((filters, filter) => {
     let skus = getProductsSKU(inputProducts, filter)
-    console.log("s sku filter", filter)
     return filters.concat([
       {
         ...filter,
@@ -42,11 +85,11 @@ const getActiveFilters = filters => {
         result[filter.optionType].products,
         skus
       )
-      // Added
+      // just checking value (can be removed) //
       result[filter.optionType].optionValue =
         result[filter.optionType].optionValue || []
-
       result[filter.optionType].optionValue.push(filter.optionValue)
+      ///////
     }
     return result
   }, Object.create(null))
@@ -63,19 +106,23 @@ const transformActiveProducts = activeFilters => {
   }, [])
 }
 
-const getActiveProductsCount = (inputFilters, inputProducts) => {
+const getActiveProductsCount = (inputFilters, inputProducts, filter) => {
   let filters = setProductsSKU(inputFilters, inputProducts)
-  console.log("filters after set Skus", filters)
   let activeFilters = getActiveFilters(filters)
-  console.log("activeFilters", activeFilters)
   let transformedProducts = transformActiveProducts(activeFilters)
-  console.log("transformedProducts", transformedProducts)
   let activeProducts = intersection(...transformedProducts)
-  console.log("activeProducts", activeProducts)
-  return activeProducts.length
+  let counter = 0
+  let found = filters.find(fil => {
+    return fil.optionValue === filter.optionValue
+  })
+  if (found) {
+    let intersect = intersection(activeProducts, found.products)
+    counter = intersect.length
+  }
+  return counter
 }
 
-export const getActiveProducts = (inputFilters, inputProducts) => {
+const getActiveProducts = (inputFilters, inputProducts) => {
   let filters = setProductsSKU(inputFilters, inputProducts)
   let activeFilters = getActiveFilters(filters)
   let transformedProducts = transformActiveProducts(activeFilters)
@@ -86,41 +133,20 @@ export const getActiveProducts = (inputFilters, inputProducts) => {
   return products
 }
 
-export const getFilters = (inputFilters, inputProducts) => {
+const getFilters = (inputFilters, inputProducts) => {
   return inputFilters.reduce((filters, filter) => {
     let active = filter.active
     if (active) {
-      console.log("active", active)
-      console.log("filter", filter)
-      filter.count = getActiveProductsCount(inputFilters, inputProducts)
+      filter.count = getActiveProductsCount(inputFilters, inputProducts, filter)
       return [...filters, filter]
     }
     filter.active = true
-    filter.count = getActiveProductsCount(inputFilters, inputProducts)
+    filter.count = getActiveProductsCount(inputFilters, inputProducts, filter)
     filter.active = false
     return [...filters, filter]
   }, [])
 }
 
-/**
- * Combine individual filters by the optionType as a key
- * Used for render
- *
- * @param {Array} filters Array of filter objects
- */
-export const combineFiltersByOptionType = filters => {
-  return filters.reduce((combined, filterItem) => {
-    let obj = {
-      id: filterItem.id,
-      active: filterItem.active,
-      count: filterItem.count,
-      optionValue: filterItem.optionValue,
-    }
-    combined[filterItem.optionType] = combined[filterItem.optionType] || {}
-    combined[filterItem.optionType].options =
-      combined[filterItem.optionType].options || []
-    combined[filterItem.optionType].options.push(obj)
-    combined[filterItem.optionType].name = filterItem.name
-    return combined
-  }, Object.create(null))
+const isAnyActive = filters => {
+  return filters.some(filter => filter.active)
 }

@@ -10,7 +10,10 @@ const Products = () => {
           <div style={{ fontWeight: `600`, fontSize: `20px` }}>
             {product.title}
           </div>
+          <div style={{ margin: `5px 0` }}>DATE: {product.date}</div>
           <div style={{ margin: `5px 0` }}>SKU: {product.sku}</div>
+          {product.offer ? <div style={{ margin: `5px 0` }}>Offer</div> : null}
+          <div style={{ margin: `5px 0` }}>Price: {product.price}</div>
           <div style={{ margin: `5px 0` }}>
             Size:{" "}
             {product.size.map((size, index) => {
