@@ -18,60 +18,117 @@ class CategoryManager extends Component {
   }
 
   resetActiveFilters = () => {
-    let filters = cloneDeep(this.state.initialFilters)
-    let products = cloneDeep(this.state.initialProducts)
-    let priceRange = getInitialPriceRange(products)
+    let initialFilters = cloneDeep(this.state.initialFilters)
+    let initialProducts = cloneDeep(this.state.initialProducts)
+    let priceRange = getInitialPriceRange(initialProducts)
     let sortBy = SORT_TYPES.SORT_BY_RELEVANCE
     let showOffers = false
-    this.runRefinement(priceRange, filters, products, sortBy, showOffers)
+    this.runRefinement({
+      priceRange,
+      initialFilters,
+      initialProducts,
+      sortBy,
+      showOffers,
+    })
   }
 
   toggleOffers = () => {
     let showOffers = !this.state.showOffers
     let priceRange = this.state.priceRange
-    let filters = cloneDeep(this.state.filters)
-    let products = cloneDeep(this.state.initialProducts)
+    let initialFilters = cloneDeep(this.state.filters)
+    let initialProducts = cloneDeep(this.state.initialProducts)
     let sortBy = this.state.sortBy
-    this.runRefinement(priceRange, filters, products, sortBy, showOffers)
+    this.runRefinement({
+      priceRange,
+      initialFilters,
+      initialProducts,
+      sortBy,
+      showOffers,
+    })
   }
 
   toggleFilter = id => {
-    let filters = cloneDeep(this.state.filters)
-    let products = cloneDeep(this.state.initialProducts)
+    let initialFilters = cloneDeep(this.state.filters)
+    let initialProducts = cloneDeep(this.state.initialProducts)
     let priceRange = this.state.priceRange
-    let index = filters.findIndex(x => x.id === id)
-    filters[index].active = !filters[index].active || false
+    let index = initialFilters.findIndex(x => x.id === id)
+    initialFilters[index].active = !initialFilters[index].active || false
     let sortBy = this.state.sortBy
     let showOffers = this.state.showOffers
-    this.runRefinement(priceRange, filters, products, sortBy, showOffers)
+    this.runRefinement({
+      priceRange,
+      initialFilters,
+      initialProducts,
+      sortBy,
+      showOffers,
+    })
   }
 
   setPriceRange = (min, max) => {
-    let filters = cloneDeep(this.state.filters)
-    let products = cloneDeep(this.state.initialProducts)
+    let initialFilters = cloneDeep(this.state.filters)
+    let initialProducts = cloneDeep(this.state.initialProducts)
     let priceRange = [min, max]
     let sortBy = this.state.sortBy
     let showOffers = this.state.showOffers
-    this.runRefinement(priceRange, filters, products, sortBy, showOffers)
+    this.runRefinement({
+      priceRange,
+      initialFilters,
+      initialProducts,
+      sortBy,
+      showOffers,
+    })
   }
 
   toggleSort = sortBy => {
     if (SORT_TYPES[sortBy]) {
-      let filters = cloneDeep(this.state.filters)
-      let products = cloneDeep(this.state.initialProducts)
+      let initialFilters = cloneDeep(this.state.filters)
+      let initialProducts = cloneDeep(this.state.initialProducts)
       let priceRange = this.state.priceRange
       let showOffers = this.state.showOffers
-      this.runRefinement(priceRange, filters, products, sortBy, showOffers)
+      this.runRefinement({
+        priceRange,
+        initialFilters,
+        initialProducts,
+        sortBy,
+        showOffers,
+      })
     }
   }
 
-  runRefinement = (
+  changePage = data => {
+    console.log("data", data)
+    let currentPage = data.selected
+    let pageOffset = currentPage * this.state.productsPerPage
+
+    let initialFilters = cloneDeep(this.state.filters)
+    let initialProducts = cloneDeep(this.state.initialProducts)
+    let { priceRange, showOffers, sortBy, productsPerPage } = this.state
+    this.runRefinement({
+      priceRange,
+      initialFilters,
+      initialProducts,
+      sortBy,
+      showOffers,
+      productsPerPage,
+      pageOffset,
+      currentPage,
+    })
+  }
+
+  changeProductsPerPage = productsPerPage => {
+    this.setState({ productsPerPage })
+  }
+
+  runRefinement = ({
     priceRange,
     initialFilters,
     initialProducts,
     sortBy = SORT_TYPES.SORT_BY_RELEVANCE,
-    showOffers
-  ) => {
+    showOffers,
+    productsPerPage = this.state.productsPerPage,
+    pageOffset = 0,
+    currentPage = 0,
+  }) => {
     const [min, max] = priceRange
     let productsByPrice = filterProductsByPrice(min, max, initialProducts)
 
@@ -84,12 +141,28 @@ class CategoryManager extends Component {
     )
 
     // Sort order
-    const products = sortProducts(filteredProducts, sortBy)
+    const sortedProducts = sortProducts(filteredProducts, sortBy)
 
     // Pagination
     /// Products per page (View [combo: 20, 28, 36, 48] per page)
+    let products = []
+    let pageCount = 1
+    if (sortedProducts.length > 0) {
+      pageCount = Math.ceil(sortedProducts.length / this.state.productsPerPage)
+      products = sortedProducts.slice(pageOffset, pageOffset + productsPerPage)
+    } else {
+      products = sortedProducts
+    }
 
-    this.setState({ filters, products, priceRange, sortBy, showOffers })
+    this.setState({
+      filters,
+      products,
+      priceRange,
+      sortBy,
+      showOffers,
+      pageCount,
+      currentPage,
+    })
   }
 
   initialState = {
@@ -101,21 +174,35 @@ class CategoryManager extends Component {
     filters: [],
     priceRange: [0, 0],
     initialPriceRange: [0, 0],
+
     toggleFilter: this.toggleFilter,
     resetActiveFilters: this.resetActiveFilters,
     setPriceRange: this.setPriceRange,
     toggleOffers: this.toggleOffers,
     toggleSort: this.toggleSort,
+
+    pageCount: 1,
+    currentPage: 0,
+    productsPerPage: 3,
+
+    changePage: this.changePage,
   }
 
   state = this.initialState
 
   componentDidMount() {
-    let products = cloneDeep(this.state.initialProducts)
-    let filters = cloneDeep(this.state.initialFilters)
-    let priceRange = getInitialPriceRange(products)
+    let initialProducts = cloneDeep(this.state.initialProducts)
+    let initialFilters = cloneDeep(this.state.initialFilters)
+    let priceRange = getInitialPriceRange(initialProducts)
     let showOffers = false
-    this.runRefinement(priceRange, filters, products, showOffers)
+    let sortBy = this.state.sortBy
+    this.runRefinement({
+      priceRange,
+      initialFilters,
+      initialProducts,
+      showOffers,
+      sortBy,
+    })
     this.setState({ initialPriceRange: priceRange })
   }
 

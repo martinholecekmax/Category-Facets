@@ -10,6 +10,7 @@ import PriceRange from "../components/priceRange"
 import ClearFiltersButton from "../components/clearFiltersButton"
 import SortSwitch from "../components/sortSwitch"
 import ToggleOffersButton from "../components/toggleOffersButton"
+import Pagination from "../components/pagination"
 
 class Index extends Component {
   render() {
@@ -20,11 +21,11 @@ class Index extends Component {
             display: `flex`,
             margin: `50px auto`,
             justifyContent: `space-between`,
-            width: `900px`,
+            width: `1200px`,
             fontSize: `18px`,
           }}
         >
-          <div style={{ minWidth: `150px` }}>
+          <div style={{ minWidth: `200px`, padding: `0 40px` }}>
             <ClearFiltersButton />
             <ToggleOffersButton />
             <PriceRange />
@@ -35,6 +36,7 @@ class Index extends Component {
             <Products />
           </div>
         </div>
+        <Pagination />
       </CategoryManager>
     )
   }

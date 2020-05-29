@@ -5,3 +5,6 @@
  */
 
 // You can delete this file if you're not using it
+// require("./src/styles/bootstrap.min.css")
+import "bootstrap/dist/css/bootstrap.min.css"
+import "./src/styles/global.css"
