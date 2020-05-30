@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { products as initialProducts } from "../json/products"
+import { products as initialProducts, products } from "../json/products"
 import { filters as initialFilters } from "../json/filters"
 
 import Filters from "../components/filters"
@@ -11,11 +11,16 @@ import ClearFiltersButton from "../components/clearFiltersButton"
 import SortSwitch from "../components/sortSwitch"
 import ToggleOffersButton from "../components/toggleOffersButton"
 import Pagination from "../components/pagination"
+import ProductsPerPageSwitch from "../components/productsPerPageSwitch"
 
 class Index extends Component {
   render() {
     return (
-      <CategoryManager products={initialProducts} filters={initialFilters}>
+      <CategoryManager
+        products={initialProducts}
+        filters={initialFilters}
+        {...this.props}
+      >
         <div
           style={{
             display: `flex`,
@@ -33,6 +38,7 @@ class Index extends Component {
           </div>
           <div>
             <SortSwitch />
+            <ProductsPerPageSwitch />
             <Products />
           </div>
         </div>
