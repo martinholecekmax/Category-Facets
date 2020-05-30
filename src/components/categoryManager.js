@@ -118,15 +118,6 @@ class CategoryManager extends Component {
     )
     let pageCount = getPageCount(sortedProducts, productsPerPage)
     let currentPage = selectedPage
-    // let products = []
-    // let pageCount = 1
-    // if (sortedProducts.length > 0) {
-    //   let pageOffset = selectedPage * productsPerPage
-    //   pageCount = Math.ceil(sortedProducts.length / productsPerPage)
-    //   products = sortedProducts.slice(pageOffset, pageOffset + productsPerPage)
-    // } else {
-    //   products = sortedProducts
-    // }
 
     this.setState({
       filters,
