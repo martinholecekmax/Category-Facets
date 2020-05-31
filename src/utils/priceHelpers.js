@@ -8,7 +8,8 @@ export const getInitialPriceRange = products => {
   return [min, max]
 }
 
-export const filterProductsByPrice = (min, max, products) => {
+export const filterProductsByPrice = (priceRange, products) => {
+  const [min, max] = priceRange
   return products.filter(product => {
     return product.price >= min && product.price <= max
   })

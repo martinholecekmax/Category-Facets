@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { products as initialProducts, products } from "../json/products"
+import { products as initialProducts } from "../json/products"
 import { filters as initialFilters } from "../json/filters"
 
 import Filters from "../components/filters"

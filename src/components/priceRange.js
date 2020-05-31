@@ -12,7 +12,6 @@ const PriceRange = () => {
   const handleChangeCommitted = () => {}
 
   const handleChange = (event, priceRange) => {
-    console.log(priceRange)
     let min = priceRange[0] || 0
     let max = priceRange[1] || 0
     setPriceRange(min, max)

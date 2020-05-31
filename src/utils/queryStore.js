@@ -1,0 +1,98 @@
+import { encodeObjUrl, decodeObjString } from "./history"
+import { setQueryStringWithoutPageReload } from "./queryString"
+import cloneDeep from "lodash/cloneDeep"
+
+export const storeQuery = ({
+  filters,
+  sortBy,
+  priceRange,
+  showOffers,
+  currentPage,
+  productsPerPage,
+  initialState,
+  location,
+}) => {
+  let activeFilters = filters.filter(filter => filter.active)
+  let queryObject = activeFilters.reduce((transformed, filter) => {
+    transformed[filter.optionType] = transformed[filter.optionType] || []
+    transformed[filter.optionType].push(filter.optionValue)
+    return transformed
+  }, {})
+
+  if (initialState.showOffers !== showOffers) {
+    queryObject = {
+      ...queryObject,
+      offers: showOffers,
+    }
+  }
+  if (initialState.currentPage !== currentPage) {
+    queryObject = {
+      ...queryObject,
+      page: currentPage,
+    }
+  }
+  if (initialState.sortBy !== sortBy) {
+    queryObject = {
+      ...queryObject,
+      sort: sortBy,
+    }
+  }
+
+  if (
+    initialState.initialPriceRange[0] !== priceRange[0] ||
+    initialState.initialPriceRange[1] !== priceRange[1]
+  ) {
+    queryObject = {
+      ...queryObject,
+      priceRange: {
+        min: priceRange[0],
+        max: priceRange[1],
+      },
+    }
+  }
+
+  if (initialState.productsPerPage !== productsPerPage) {
+    queryObject = {
+      ...queryObject,
+      productsPerPage,
+    }
+  }
+
+  let encoded = encodeObjUrl(queryObject)
+  setQueryStringWithoutPageReload(encoded, location)
+}
+
+export const decodeQuery = (initialState, location) => {
+  let query = location.search
+  let state = cloneDeep(initialState)
+  let filters = [...state.filters]
+  if (query) {
+    query = query.substring(1)
+    let decoded = decodeObjString(query)
+    for (const [key, value] of Object.entries(decoded)) {
+      if (key === "page") {
+        state.selectedPage = parseInt(value)
+      } else if (key === "productsPerPage") {
+        state.productsPerPage = parseInt(value)
+      } else if (key === "sort") {
+        state.sortBy = value
+      } else if (key === "offers") {
+        state.showOffers = value === "true" ? true : false
+      } else if (key === "priceRange") {
+        let min = parseInt(value.min)
+        let max = parseInt(value.max)
+        state.priceRange = [min, max]
+      } else {
+        filters = filters.map(filter => {
+          if (filter.optionType === key && value.includes(filter.optionValue)) {
+            filter.active = true
+          }
+          return filter
+        })
+      }
+    }
+    state.filters = filters
+  }
+
+  return state
+}
