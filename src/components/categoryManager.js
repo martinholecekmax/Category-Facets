@@ -29,6 +29,31 @@ class CategoryManager extends Component {
     })
   }
 
+  isResetFiltersActive = () => {
+    let activeFilter = this.state.filters.find(filter => filter.active)
+    if (activeFilter) {
+      return true
+    }
+    if (this.initialState.showOffers !== this.state.showOffers) {
+      return true
+    }
+    if (this.initialState.sortBy !== this.state.sortBy) {
+      return true
+    }
+    if (this.initialState.currentPage !== this.state.currentPage) {
+      return true
+    }
+    if (this.initialState.productsPerPage !== this.state.productsPerPage) {
+      return true
+    }
+    if (
+      this.initialState.initialPriceRange[0] !== this.state.priceRange[0] ||
+      this.initialState.initialPriceRange[1] !== this.state.priceRange[1]
+    ) {
+      return true
+    }
+  }
+
   toggleOffers = () => {
     let showOffers = !this.state.showOffers
     this.runRefinement({
@@ -154,6 +179,7 @@ class CategoryManager extends Component {
     toggleSort: this.toggleSort,
     changePage: this.changePage,
     changeProductsPerPage: this.changeProductsPerPage,
+    isResetFiltersActive: this.isResetFiltersActive,
   }
 
   state = this.initialState

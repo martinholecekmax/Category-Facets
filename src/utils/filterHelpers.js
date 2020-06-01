@@ -60,7 +60,9 @@ const setProductsSKU = (inputFilters, inputProducts) => {
 const getProductsSKU = (inputProducts, filter) => {
   return inputProducts.reduce((skus, product) => {
     if (isFilterValueInProduct(product, filter)) {
-      return skus.concat([product.sku])
+      if (product.sku) {
+        return skus.concat([product.sku])
+      }
     }
     return skus
   }, [])
@@ -85,11 +87,6 @@ const getActiveFilters = filters => {
         result[filter.optionType].products,
         skus
       )
-      // just checking value (can be removed) //
-      result[filter.optionType].optionValue =
-        result[filter.optionType].optionValue || []
-      result[filter.optionType].optionValue.push(filter.optionValue)
-      ///////
     }
     return result
   }, Object.create(null))

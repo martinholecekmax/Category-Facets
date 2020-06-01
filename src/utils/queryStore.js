@@ -1,6 +1,21 @@
-import { encodeObjUrl, decodeObjString } from "./history"
-import { setQueryStringWithoutPageReload } from "./queryString"
+import { navigate } from "gatsby"
 import cloneDeep from "lodash/cloneDeep"
+import qs from "qs"
+import { SORT_TYPES } from "./sortHelpers"
+
+const encodeObjUrl = obj =>
+  qs.stringify(obj, { encode: true, encodeValuesOnly: true })
+
+const decodeObjString = str => qs.parse(str)
+
+const setURLQuery = (query, location) => {
+  const { pathname } = location
+  let url = pathname
+  if (query !== "") {
+    url = url + "?" + query
+  }
+  navigate(url)
+}
 
 export const storeQuery = ({
   filters,
@@ -59,7 +74,7 @@ export const storeQuery = ({
   }
 
   let encoded = encodeObjUrl(queryObject)
-  setQueryStringWithoutPageReload(encoded, location)
+  setURLQuery(encoded, location)
 }
 
 export const decodeQuery = (initialState, location) => {
@@ -74,7 +89,7 @@ export const decodeQuery = (initialState, location) => {
         state.selectedPage = parseInt(value)
       } else if (key === "productsPerPage") {
         state.productsPerPage = parseInt(value)
-      } else if (key === "sort") {
+      } else if (key === "sort" && SORT_TYPES[value]) {
         state.sortBy = value
       } else if (key === "offers") {
         state.showOffers = value === "true" ? true : false

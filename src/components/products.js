@@ -16,32 +16,34 @@ const Products = () => {
           <div style={{ margin: `5px 0` }}>Price: {product.price}</div>
           <div style={{ margin: `5px 0` }}>
             Size:{" "}
-            {product.size.map((size, index) => {
-              return (
-                <span key={index} style={{ padding: `0 3px` }}>
-                  {size.value}
-                </span>
-              )
-            })}
+            {product.size &&
+              product.size.map((size, index) => {
+                return (
+                  <span key={index} style={{ padding: `0 3px` }}>
+                    {size.value}
+                  </span>
+                )
+              })}
           </div>
           <div
             style={{ display: `flex`, alignItems: `center`, margin: `5px 0` }}
           >
             Color:{" "}
-            {product.color.map((color, index) => {
-              return (
-                <span
-                  key={index}
-                  style={{
-                    margin: `0 5px`,
-                    width: `20px`,
-                    height: `20px`,
-                    display: `inline-block`,
-                    backgroundColor: color.value,
-                  }}
-                />
-              )
-            })}
+            {product.color &&
+              product.color.map((color, index) => {
+                return (
+                  <span
+                    key={index}
+                    style={{
+                      margin: `0 5px`,
+                      width: `20px`,
+                      height: `20px`,
+                      display: `inline-block`,
+                      backgroundColor: color.value,
+                    }}
+                  />
+                )
+              })}
           </div>
         </div>
       )

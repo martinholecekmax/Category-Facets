@@ -5,8 +5,6 @@ const SORT_BY_PRICE_ASC = "SORT_BY_PRICE_ASC"
 const SORT_BY_PRICE_DESC = "SORT_BY_PRICE_DESC"
 const SORT_BY_TITLE_ASC = "SORT_BY_TITLE_ASC"
 const SORT_BY_TITLE_DESC = "SORT_BY_TITLE_DESC"
-// const ASC = "ASC"
-// const DESC = "DESC"
 
 export const SORT_TYPES = {
   SORT_BY_RELEVANCE,
@@ -43,7 +41,6 @@ export const sortProducts = (products = [], sortBy = SORT_BY_RELEVANCE) => {
     case SORT_BY_TITLE_ASC:
       return products.sort(sortByTitleASC)
     case SORT_BY_TITLE_DESC:
-      console.log("products", products)
       return products.sort(sortByTitleDESC)
     default:
       return products
