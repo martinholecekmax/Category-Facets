@@ -5,7 +5,7 @@ import { filters as initialFilters } from "../json/filters"
 import Filters from "../components/filters"
 import Products from "../components/products"
 
-import CategoryManager from "../components/categoryManager"
+import CategoryManager from "../components/categoryManager/categoryManager"
 import PriceRange from "../components/priceRange"
 import ClearFiltersButton from "../components/clearFiltersButton"
 import SortSwitch from "../components/sortSwitch"

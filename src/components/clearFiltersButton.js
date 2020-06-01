@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { CategoryManagerContext } from "./categoryManager"
+import { CategoryManagerContext } from "./categoryManager/categoryManager"
 
 const ClearFiltersButton = () => {
   const { resetActiveFilters, isResetFiltersActive } = useContext(
@@ -9,15 +9,13 @@ const ClearFiltersButton = () => {
     <div>
       {isResetFiltersActive() ? (
         <button
-          className={"btn btn-primary"}
+          className={"btn btn-danger"}
           onClick={resetActiveFilters}
           style={{ marginBottom: `20px` }}
         >
           Clear Filters
         </button>
-      ) : (
-        "Not Active"
-      )}
+      ) : null}
     </div>
   )
 }

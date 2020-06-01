@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { CategoryManagerContext } from "./categoryManager"
+import { CategoryManagerContext } from "./categoryManager/categoryManager"
 
 const ProductsPerPageSwitch = () => {
   const { changeProductsPerPage, productsPerPage } = useContext(

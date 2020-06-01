@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
-import { CategoryManagerContext } from "./categoryManager"
-import { combineFiltersByOptionType } from "../utils/filterHelpers"
+import { CategoryManagerContext } from "./categoryManager/categoryManager"
+import { combineFiltersByOptionType } from "./categoryManager/core/refinementFilters"
 
 const Filters = () => {
   const { filters, toggleFilter } = useContext(CategoryManagerContext)

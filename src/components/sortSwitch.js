@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
-import { CategoryManagerContext } from "./categoryManager"
-import { SORT_TYPES } from "../utils/sortHelpers"
+import { CategoryManagerContext } from "./categoryManager/categoryManager"
+import { SORT_TYPES } from "./categoryManager/core/sortReducer"
 
 const SortSwitch = () => {
   const { toggleSort, sortBy } = useContext(CategoryManagerContext)

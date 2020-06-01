@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 import { Slider } from "@material-ui/core"
-import { CategoryManagerContext } from "./categoryManager"
+import { CategoryManagerContext } from "./categoryManager/categoryManager"
 
 import styles from "./priceRange.module.css"
 

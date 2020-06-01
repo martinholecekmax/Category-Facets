@@ -1,7 +1,7 @@
-import { navigate } from "gatsby"
-import cloneDeep from "lodash/cloneDeep"
 import qs from "qs"
-import { SORT_TYPES } from "./sortHelpers"
+import cloneDeep from "lodash/cloneDeep"
+import { navigate } from "gatsby"
+import { SORT_TYPES } from "./sortReducer"
 
 const encodeObjUrl = obj =>
   qs.stringify(obj, { encode: true, encodeValuesOnly: true })

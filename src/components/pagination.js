@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
-import { CategoryManagerContext } from "./categoryManager"
 import ReactPaginate from "react-paginate"
+import { CategoryManagerContext } from "./categoryManager/categoryManager"
 
 import styles from "./pagination.module.css"
 

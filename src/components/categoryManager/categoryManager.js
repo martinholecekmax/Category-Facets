@@ -1,13 +1,12 @@
 import React, { Component } from "react"
-import { getFilteredProducts, getProductsByOffer } from "../utils/filterHelpers"
 import cloneDeep from "lodash/cloneDeep"
-import {
-  filterProductsByPrice,
-  getInitialPriceRange,
-} from "../utils/priceHelpers"
-import { SORT_TYPES, sortProducts } from "../utils/sortHelpers"
-import { getPageCount, getPaginatedProducts } from "../utils/paginationHelpers"
-import { storeQuery, decodeQuery } from "../utils/queryStore"
+import { getFilteredProducts } from "./core/refinementFilters"
+import { filterProductsByPrice, getInitialPriceRange } from "./core/priceFilter"
+import { SORT_TYPES, sortProducts } from "./core/sortReducer"
+import { getPageCount, getPaginatedProducts } from "./core/pagination"
+import { storeQuery, decodeQuery } from "./core/queryStore"
+import { getProductsByOffer } from "./core/offersFilter"
+import { isAnyFilterActive } from "./core/validation"
 
 export const CategoryManagerContext = React.createContext()
 
@@ -30,28 +29,7 @@ class CategoryManager extends Component {
   }
 
   isResetFiltersActive = () => {
-    let activeFilter = this.state.filters.find(filter => filter.active)
-    if (activeFilter) {
-      return true
-    }
-    if (this.initialState.showOffers !== this.state.showOffers) {
-      return true
-    }
-    if (this.initialState.sortBy !== this.state.sortBy) {
-      return true
-    }
-    if (this.initialState.currentPage !== this.state.currentPage) {
-      return true
-    }
-    if (this.initialState.productsPerPage !== this.state.productsPerPage) {
-      return true
-    }
-    if (
-      this.initialState.initialPriceRange[0] !== this.state.priceRange[0] ||
-      this.initialState.initialPriceRange[1] !== this.state.priceRange[1]
-    ) {
-      return true
-    }
+    return isAnyFilterActive(this.initialState, this.state)
   }
 
   toggleOffers = () => {
@@ -168,7 +146,6 @@ class CategoryManager extends Component {
     filters: this.props.filters,
     priceRange: getInitialPriceRange(this.props.products),
     initialPriceRange: getInitialPriceRange(this.props.products),
-    // initialPriceRange: [0, 0],
     pageCount: 1,
     currentPage: 0,
     productsPerPage: 2,
