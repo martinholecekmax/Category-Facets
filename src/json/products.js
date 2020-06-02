@@ -61,6 +61,7 @@ export const products = [
     price: 9503,
     color: [{ value: "Blue" }],
     size: [{ value: "Large" }],
+    offer: true,
   },
   {
     title: "Fleming",
@@ -69,6 +70,7 @@ export const products = [
     price: 1698,
     color: [{ value: "Blue" }],
     size: [{ value: "Large" }],
+    offer: true,
   },
   {
     title: "Moses",
@@ -77,6 +79,7 @@ export const products = [
     price: 3216,
     color: [{ value: "Blue" }],
     size: [{ value: "Medium" }],
+    offer: true,
   },
   {
     title: "Frey",

@@ -1,6 +1,5 @@
 import union from "lodash/union"
 import intersection from "lodash/intersection"
-import cloneDeep from "lodash/cloneDeep"
 
 /**
  * Combine individual filters by the optionType as a key
@@ -29,35 +28,77 @@ export const getFilteredProducts = (inputFilters, inputProducts) => {
   let products = []
   let filters = []
   if (isAnyActive(inputFilters)) {
-    products = getActiveProducts(inputFilters, inputProducts)
+    ;[products, filters] = getActiveProducts(inputFilters, inputProducts)
   } else {
-    products = cloneDeep(inputProducts)
+    products = inputProducts
+    filters = copyFilters(inputFilters, inputProducts)
   }
-  filters = getFilters(inputFilters, inputProducts)
   return { products, filters }
 }
 
+const getActiveFilters = filters => {
+  let activeFilters = {}
+  for (let index = 0; index < filters.length; index++) {
+    const filter = filters[index]
+    if (filter.active) {
+      activeFilters[filter.optionType] = activeFilters[filter.optionType] || {}
+      activeFilters[filter.optionType].products = union(
+        activeFilters[filter.optionType].products,
+        filter.products
+      )
+    }
+  }
+  return activeFilters
+}
+
+const getActiveProducts = (inputFilters, inputProducts) => {
+  setProductsSKU(inputFilters, inputProducts)
+  let activeFilters = getActiveFilters(inputFilters)
+  let activeTransformedProducts = transformActiveProducts(activeFilters)
+  let activeProducts = intersection(...activeTransformedProducts)
+
+  for (let index = 0; index < inputFilters.length; index++) {
+    let filter = inputFilters[index]
+    if (filter.active) {
+      let actFilters = getActiveFilters(inputFilters)
+      let actTransformedProducts = transformActiveProducts(actFilters)
+      let intersect = intersection(...actTransformedProducts, filter.products)
+      filter.count = intersect.length
+    } else {
+      filter.active = true
+      let actFilters = getActiveFilters(inputFilters)
+      let actTransformedProducts = transformActiveProducts(actFilters)
+      let intersect = intersection(...actTransformedProducts, filter.products)
+      filter.active = false
+      filter.count = intersect.length
+    }
+  }
+
+  let products = inputProducts.filter(product => {
+    return activeProducts.includes(product.sku)
+  })
+  let filters = inputFilters
+  return [products, filters]
+}
+
 const setProductsSKU = (inputFilters, inputProducts) => {
-  return inputFilters.reduce((filters, filter) => {
-    let skus = getProductsSKU(inputProducts, filter)
-    return filters.concat([
-      {
-        ...filter,
-        products: skus,
-      },
-    ])
-  }, [])
+  for (let index = 0; index < inputFilters.length; index++) {
+    let filter = inputFilters[index]
+    filter.products = getProductsSKU(inputProducts, filter)
+  }
 }
 
 const getProductsSKU = (inputProducts, filter) => {
-  return inputProducts.reduce((skus, product) => {
+  let skus = []
+  for (let index = 0; index < inputProducts.length; index++) {
+    const product = inputProducts[index]
     if (isFilterValueInProduct(product, filter)) {
       if (product.sku) {
-        return skus.concat([product.sku])
+        skus.push(product.sku)
       }
     }
-    return skus
-  }, [])
+  }
+  return skus
 }
 
 const isFilterValueInProduct = (product, filter) => {
@@ -68,20 +109,6 @@ const isFilterValueInProduct = (product, filter) => {
     })
   }
   return false
-}
-
-const getActiveFilters = filters => {
-  return filters.reduce((result, filter) => {
-    if (filter.active) {
-      let skus = filter.products
-      result[filter.optionType] = result[filter.optionType] || {}
-      result[filter.optionType].products = union(
-        result[filter.optionType].products,
-        skus
-      )
-    }
-    return result
-  }, Object.create(null))
 }
 
 /**
@@ -95,47 +122,42 @@ const transformActiveProducts = activeFilters => {
   }, [])
 }
 
-const getActiveProductsCount = (inputFilters, inputProducts, filter) => {
-  let filters = setProductsSKU(inputFilters, inputProducts)
-  let activeFilters = getActiveFilters(filters)
-  let transformedProducts = transformActiveProducts(activeFilters)
-  let activeProducts = intersection(...transformedProducts)
-  let counter = 0
-  let found = filters.find(fil => {
-    return fil.optionValue === filter.optionValue
-  })
-  if (found) {
-    let intersect = intersection(activeProducts, found.products)
-    counter = intersect.length
+const copyFilters = (inputFilters, inputProducts) => {
+  let filters = []
+  for (let index = 0; index < inputFilters.length; index++) {
+    let filter = inputFilters[index]
+    // if (filter.active) {
+    //   filter.count = getActiveProductsCount(inputFilters, inputProducts, filter)
+    // } else {
+    //   filter.active = true
+    //   filter.count = getActiveProductsCount(inputFilters, inputProducts, filter)
+    //   filter.active = false
+    // }
+    filters.push(filter)
   }
-  return counter
-}
-
-const getActiveProducts = (inputFilters, inputProducts) => {
-  let filters = setProductsSKU(inputFilters, inputProducts)
-  let activeFilters = getActiveFilters(filters)
-  let transformedProducts = transformActiveProducts(activeFilters)
-  let activeProducts = intersection(...transformedProducts)
-  let products = inputProducts.filter(product => {
-    return activeProducts.includes(product.sku)
-  })
-  return products
-}
-
-const getFilters = (inputFilters, inputProducts) => {
-  return inputFilters.reduce((filters, filter) => {
-    let active = filter.active
-    if (active) {
-      filter.count = getActiveProductsCount(inputFilters, inputProducts, filter)
-      return [...filters, filter]
-    }
-    filter.active = true
-    filter.count = getActiveProductsCount(inputFilters, inputProducts, filter)
-    filter.active = false
-    return [...filters, filter]
-  }, [])
+  return filters
 }
 
 const isAnyActive = filters => {
   return filters.some(filter => filter.active)
 }
+
+// const getActiveProductsCount = (inputFilters, inputProducts, filter) => {
+//   let time0 = performance.now()
+//   setProductsSKU(inputFilters, inputProducts)
+
+//   let activeFilters = getActiveFilters(inputFilters)
+//   let transformedProducts = transformActiveProducts(activeFilters)
+//   let activeProducts = intersection(...transformedProducts)
+//   let counter = 0
+//   let found = inputFilters.find(inputFilter => {
+//     return inputFilter.optionValue === filter.optionValue
+//   })
+//   if (found) {
+//     let intersect = intersection(activeProducts, found.products)
+//     counter = intersect.length
+//   }
+//   let time1 = performance.now()
+//   console.log(`Function 'setProductsSKU' Took ${time1 - time0}ms`)
+//   return counter
+// }

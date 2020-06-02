@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useState } from "react"
 import { Slider } from "@material-ui/core"
 import { CategoryManagerContext } from "./categoryManager/categoryManager"
 
@@ -8,25 +8,33 @@ const PriceRange = () => {
   const { setPriceRange, priceRange, initialPriceRange } = useContext(
     CategoryManagerContext
   )
+  const [range, setRange] = useState([
+    initialPriceRange[0],
+    initialPriceRange[1],
+  ])
 
-  const handleChangeCommitted = () => {}
-
-  const handleChange = (event, priceRange) => {
+  const handleChangeCommitted = (event, priceRange) => {
+    console.log("end drag")
     let min = priceRange[0] || 0
     let max = priceRange[1] || 0
     setPriceRange(min, max)
+  }
+
+  const handleChange = (event, priceRange) => {
+    setRange(priceRange)
   }
 
   return (
     <div>
       Price Range
       <div>
-        <div>From: {priceRange[0]}</div>
-        <div>To: {priceRange[1]}</div>
+        <div>From: {range[0]}</div>
+        <div>To: {range[1]}</div>
       </div>
       <Slider
         onChangeCommitted={handleChangeCommitted}
-        value={priceRange}
+        value={range}
+        // value={priceRange}
         min={initialPriceRange[0]}
         max={initialPriceRange[1]}
         onChange={handleChange}

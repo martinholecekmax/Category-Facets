@@ -8,9 +8,9 @@ const ProductsPerPageSwitch = () => {
   return (
     <div style={{ marginBottom: `10px` }}>
       <div>Products Per Page {productsPerPage}</div>
-      <button onClick={() => changeProductsPerPage(2)}>2</button>
-      <button onClick={() => changeProductsPerPage(4)}>4</button>
-      <button onClick={() => changeProductsPerPage(6)}>6</button>
+      <button onClick={() => changeProductsPerPage(20)}>20</button>
+      <button onClick={() => changeProductsPerPage(40)}>40</button>
+      <button onClick={() => changeProductsPerPage(60)}>60</button>
     </div>
   )
 }

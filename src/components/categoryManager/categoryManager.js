@@ -86,26 +86,39 @@ class CategoryManager extends Component {
     initialProducts,
     sortBy = SORT_TYPES.SORT_BY_RELEVANCE,
     showOffers,
-    productsPerPage = 3,
+    productsPerPage = 20,
     selectedPage = 0,
   }) => {
     initialProducts = cloneDeep(initialProducts)
     initialFilters = cloneDeep(initialFilters)
 
+    let time0 = performance.now()
     let productsByPrice = filterProductsByPrice(priceRange, initialProducts)
+    let time1 = performance.now()
+    console.log(`Function 'filterProductsByPrice' Took ${time1 - time0}ms`)
 
     // Filter Offers
+    time0 = performance.now()
     let productsByOffer = getProductsByOffer(productsByPrice, showOffers)
+    time1 = performance.now()
+    console.log(`Function 'getProductsByOffer' Took ${time1 - time0}ms`)
 
+    time0 = performance.now()
     const { products: filteredProducts, filters } = getFilteredProducts(
       initialFilters,
       productsByOffer
     )
+    time1 = performance.now()
+    console.log(`Function 'getFilteredProducts' Took ${time1 - time0}ms`)
 
     // Sort order
+    time0 = performance.now()
     const sortedProducts = sortProducts(filteredProducts, sortBy)
+    time1 = performance.now()
+    console.log(`Function 'sortProducts' Took ${time1 - time0}ms`)
 
     // Pagination
+    time0 = performance.now()
     let products = getPaginatedProducts(
       sortedProducts,
       selectedPage,
@@ -114,6 +127,8 @@ class CategoryManager extends Component {
     let pageCount = getPageCount(sortedProducts, productsPerPage)
     let currentPage = selectedPage
     let initialState = this.initialState
+    time1 = performance.now()
+    console.log(`Function 'getPaginatedProducts' Took ${time1 - time0}ms`)
     storeQuery({
       filters,
       sortBy,
@@ -148,7 +163,7 @@ class CategoryManager extends Component {
     initialPriceRange: getInitialPriceRange(this.props.products),
     pageCount: 1,
     currentPage: 0,
-    productsPerPage: 2,
+    productsPerPage: 20,
     toggleFilter: this.toggleFilter,
     resetActiveFilters: this.resetActiveFilters,
     setPriceRange: this.setPriceRange,
