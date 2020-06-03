@@ -24,25 +24,10 @@ export const combineFiltersByOptionType = filters => {
   }, Object.create(null))
 }
 
-const getActiveFilters = filters => {
-  let activeFilters = {}
-  for (let index = 0; index < filters.length; index++) {
-    const filter = filters[index]
-    if (filter.active) {
-      activeFilters[filter.optionType] = activeFilters[filter.optionType] || {}
-      activeFilters[filter.optionType].products = union(
-        activeFilters[filter.optionType].products,
-        filter.products
-      )
-    }
-  }
-  return activeFilters
-}
-
 export const getFiltersAndProducts = (inputFilters, inputProducts) => {
   setProductsSKU(inputFilters, inputProducts)
   let activeFilters = getActiveFilters(inputFilters)
-  let activeTransformedProducts = transformActiveProducts(activeFilters)
+  let activeTransformedProducts = flatMapFilterProducts(activeFilters)
   let activeProducts = intersection(...activeTransformedProducts)
   let isAnyActive = false
 
@@ -51,13 +36,13 @@ export const getFiltersAndProducts = (inputFilters, inputProducts) => {
     if (filter.active) {
       isAnyActive = true
       let actFilters = getActiveFilters(inputFilters)
-      let actTransformedProducts = transformActiveProducts(actFilters)
+      let actTransformedProducts = flatMapFilterProducts(actFilters)
       let intersect = intersection(...actTransformedProducts, filter.products)
       filter.count = intersect.length
     } else {
       filter.active = true
       let actFilters = getActiveFilters(inputFilters)
-      let actTransformedProducts = transformActiveProducts(actFilters)
+      let actTransformedProducts = flatMapFilterProducts(actFilters)
       let intersect = intersection(...actTransformedProducts, filter.products)
       filter.active = false
       filter.count = intersect.length
@@ -78,21 +63,16 @@ export const getFiltersAndProducts = (inputFilters, inputProducts) => {
 const setProductsSKU = (inputFilters, inputProducts) => {
   for (let index = 0; index < inputFilters.length; index++) {
     let filter = inputFilters[index]
-    filter.products = getProductsSKU(inputProducts, filter)
-  }
-}
-
-const getProductsSKU = (inputProducts, filter) => {
-  let skus = []
-  for (let index = 0; index < inputProducts.length; index++) {
-    const product = inputProducts[index]
-    if (isFilterValueInProduct(product, filter)) {
-      if (product.sku) {
-        skus.push(product.sku)
+    filter.products = []
+    for (let index = 0; index < inputProducts.length; index++) {
+      const product = inputProducts[index]
+      if (isFilterValueInProduct(product, filter)) {
+        if (product.sku) {
+          filter.products.push(product.sku)
+        }
       }
     }
   }
-  return skus
 }
 
 const isFilterValueInProduct = (product, filter) => {
@@ -105,13 +85,30 @@ const isFilterValueInProduct = (product, filter) => {
   return false
 }
 
+const getActiveFilters = filters => {
+  let activeFilters = {}
+  for (let index = 0; index < filters.length; index++) {
+    const filter = filters[index]
+    if (filter.active) {
+      activeFilters[filter.optionType] = activeFilters[filter.optionType] || {}
+      activeFilters[filter.optionType].products = union(
+        activeFilters[filter.optionType].products,
+        filter.products
+      )
+    }
+  }
+  return activeFilters
+}
+
 /**
- * Flatten products from activeFilters object
- * @param {Object} activeFilters Active filters object
+ * Flattens filters objects products array in each key
+ * @param {Object} inputFilters
  */
-const transformActiveProducts = activeFilters => {
-  return Object.keys(activeFilters).reduce((result, key) => {
-    let filter = activeFilters[key]
-    return [...result, filter.products]
-  }, [])
+const flatMapFilterProducts = inputFilters => {
+  let filters = []
+  for (let key in inputFilters) {
+    let filter = inputFilters[key]
+    filters.push(filter.products)
+  }
+  return filters
 }
