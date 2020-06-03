@@ -1,6 +1,6 @@
 import React, { Component } from "react"
 import cloneDeep from "lodash/cloneDeep"
-import { getFilteredProducts } from "./core/refinementFilters"
+import { getFiltersAndProducts } from "./core/refinementFilters"
 import { filterProductsByPrice, getInitialPriceRange } from "./core/priceFilter"
 import { SORT_TYPES, sortProducts } from "./core/sortReducer"
 import { getPageCount, getPaginatedProducts } from "./core/pagination"
@@ -104,7 +104,7 @@ class CategoryManager extends Component {
     console.log(`Function 'getProductsByOffer' Took ${time1 - time0}ms`)
 
     time0 = performance.now()
-    const { products: filteredProducts, filters } = getFilteredProducts(
+    const { products: filteredProducts, filters } = getFiltersAndProducts(
       initialFilters,
       productsByOffer
     )

@@ -24,18 +24,6 @@ export const combineFiltersByOptionType = filters => {
   }, Object.create(null))
 }
 
-export const getFilteredProducts = (inputFilters, inputProducts) => {
-  let products = []
-  let filters = []
-  if (isAnyActive(inputFilters)) {
-    ;[products, filters] = getActiveProducts(inputFilters, inputProducts)
-  } else {
-    products = inputProducts
-    filters = copyFilters(inputFilters, inputProducts)
-  }
-  return { products, filters }
-}
-
 const getActiveFilters = filters => {
   let activeFilters = {}
   for (let index = 0; index < filters.length; index++) {
@@ -51,15 +39,17 @@ const getActiveFilters = filters => {
   return activeFilters
 }
 
-const getActiveProducts = (inputFilters, inputProducts) => {
+export const getFiltersAndProducts = (inputFilters, inputProducts) => {
   setProductsSKU(inputFilters, inputProducts)
   let activeFilters = getActiveFilters(inputFilters)
   let activeTransformedProducts = transformActiveProducts(activeFilters)
   let activeProducts = intersection(...activeTransformedProducts)
+  let isAnyActive = false
 
   for (let index = 0; index < inputFilters.length; index++) {
     let filter = inputFilters[index]
     if (filter.active) {
+      isAnyActive = true
       let actFilters = getActiveFilters(inputFilters)
       let actTransformedProducts = transformActiveProducts(actFilters)
       let intersect = intersection(...actTransformedProducts, filter.products)
@@ -77,8 +67,12 @@ const getActiveProducts = (inputFilters, inputProducts) => {
   let products = inputProducts.filter(product => {
     return activeProducts.includes(product.sku)
   })
-  let filters = inputFilters
-  return [products, filters]
+
+  if (!isAnyActive && products.length === 0) {
+    products = inputProducts
+  }
+
+  return { products, filters: inputFilters }
 }
 
 const setProductsSKU = (inputFilters, inputProducts) => {
@@ -103,7 +97,7 @@ const getProductsSKU = (inputProducts, filter) => {
 
 const isFilterValueInProduct = (product, filter) => {
   const keys = Object.keys(product)
-  if (keys.includes(filter.optionType)) {
+  if (keys.includes(filter.optionType) && product[filter.optionType]) {
     return product[filter.optionType].some(option => {
       return filter.optionValue === option.value
     })
@@ -121,43 +115,3 @@ const transformActiveProducts = activeFilters => {
     return [...result, filter.products]
   }, [])
 }
-
-const copyFilters = (inputFilters, inputProducts) => {
-  let filters = []
-  for (let index = 0; index < inputFilters.length; index++) {
-    let filter = inputFilters[index]
-    // if (filter.active) {
-    //   filter.count = getActiveProductsCount(inputFilters, inputProducts, filter)
-    // } else {
-    //   filter.active = true
-    //   filter.count = getActiveProductsCount(inputFilters, inputProducts, filter)
-    //   filter.active = false
-    // }
-    filters.push(filter)
-  }
-  return filters
-}
-
-const isAnyActive = filters => {
-  return filters.some(filter => filter.active)
-}
-
-// const getActiveProductsCount = (inputFilters, inputProducts, filter) => {
-//   let time0 = performance.now()
-//   setProductsSKU(inputFilters, inputProducts)
-
-//   let activeFilters = getActiveFilters(inputFilters)
-//   let transformedProducts = transformActiveProducts(activeFilters)
-//   let activeProducts = intersection(...transformedProducts)
-//   let counter = 0
-//   let found = inputFilters.find(inputFilter => {
-//     return inputFilter.optionValue === filter.optionValue
-//   })
-//   if (found) {
-//     let intersect = intersection(activeProducts, found.products)
-//     counter = intersect.length
-//   }
-//   let time1 = performance.now()
-//   console.log(`Function 'setProductsSKU' Took ${time1 - time0}ms`)
-//   return counter
-// }
